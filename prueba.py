@@ -46,13 +46,13 @@ class Correlativas:
         import numpy as np
         self.__reg_real.iloc[:] = vector 
         self.__reg_disp.iloc[:] = vector
-        self.__reg_disp_df = np.diag(vector)
+        self.__reg_disp_df = pd.DataFrame(np.diag(vector),index=self.labels)
     
     def ren_real(self,vector):
         import numpy as np
         self.__ren_real.iloc[:] = vector 
         self.__ren_disp.iloc[:] = vector
-        self.__reg_disp_df = np.diag(vector)
+        self.__reg_disp_df = pd.DataFrame(np.diag(vector),index=self.labels)
 
 
     def disponibles(self,*blocked):
@@ -84,13 +84,13 @@ class Correlativas:
         import pandas as pd
         import numpy as np
 
-        #print('-------------------------------------------------')
-        #print(f'reg_reg_calc')
-        #print(self.__reg_reg_block)
-        #print(self.__reg_disp_df)
-        #print('-------------------------------------------------')
+        print('-------------------------------------------------')
+        print(f'reg_reg_calc')
+        print(self.__reg_reg_block)
+        print(self.__reg_disp_df)
+        print('-------------------------------------------------')
         
-        test = self.__reg_reg_block.values@self.__reg_disp_df.values
+        test = self.__reg_reg_block.values@self.__reg_disp_df
         return test
     
     def __reg_ren_calc(self):
@@ -100,12 +100,12 @@ class Correlativas:
         import pandas as pd
         import numpy as np
 
-        #print('-------------------------------------------------')
-        #print(f'reg_ren_calc')
-        #print(self.__reg_ren_block)
-        #print(self.__reg_disp_df)
-        #print('-------------------------------------------------')
-        test = self.__reg_ren_block.values@self.__reg_disp_df.values
+        print('-------------------------------------------------')
+        print(f'reg_ren_calc')
+        print(self.__reg_ren_block)
+        print(self.__reg_disp_df)
+        print('-------------------------------------------------')
+        test = self.__reg_ren_block.values@self.__reg_disp_df
         return test
     
     def __ren_ren_calc(self):
@@ -116,13 +116,13 @@ class Correlativas:
         import pandas as pd
         import numpy as np
 
-        #print('-------------------------------------------------')
-        #print(f'ren_ren_calc')
-        #print(self.__ren_ren_block)
-        #print(self.__ren_disp_df)
-        #print('-------------------------------------------------')
+        print('-------------------------------------------------')
+        print(f'ren_ren_calc')
+        print(self.__ren_ren_block)
+        print(self.__ren_disp_df)
+        print('-------------------------------------------------')
 
-        test = self.__ren_ren_block.values@self.__ren_disp_df.values
+        test = self.__ren_ren_block.values@self.__ren_disp_df
         return test
 
     def __ren_reg_calc(self):
@@ -132,12 +132,12 @@ class Correlativas:
         import pandas as pd
         import numpy as np
 
-        #print('-------------------------------------------------')
-        #print(f'ren_reg_calc')
-        #print(self.__ren_reg_block)
-        #print(self.__ren_disp_df)
-        #print('-------------------------------------------------')
-        test = self.__ren_reg_block.values@self.__ren_disp_df.values
+        print('-------------------------------------------------')
+        print(f'ren_reg_calc')
+        print(self.__ren_reg_block)
+        print(self.__ren_disp_df)
+        print('-------------------------------------------------')
+        test = self.__ren_reg_block.values@self.__ren_disp_df
 
         return test
 
@@ -190,30 +190,33 @@ class Correlativas:
         '''
         import numpy as np
         test_reg_reg_new = self.__reg_reg_calc()            #   posibilidades de regularización por materias regularizadas
-        #print(f'test_reg_reg:\n{test_reg_reg_new}\n')       ###
+        print(f'test_reg_reg:\n{test_reg_reg_new}\n')       ###
         test_ren_reg_new = self.__ren_reg_calc()            #   posibilidades de regularización por materias aprobadas
-        #print(f'test_ren_reg:\n{test_ren_reg_new}\n')       ###
+        print(f'test_ren_reg:\n{test_ren_reg_new}\n')       ###
 
         while True:
             for i in range(len(test_reg_reg_new)):
-                if (test_reg_reg_new[i] == self.__reg_reg_block.values[i,:]).all() and (test_ren_reg_new[i] == self.__ren_reg_block.values[i,:]).all():
+                if (test_reg_reg_new.iloc[i,:] == self.__reg_reg_block.values[i,:]).all() and (test_ren_reg_new.iloc[i,:] == self.__ren_reg_block.values[i,:]).all():
                     #print(f'test_reg_reg_new[i]:\n{test_reg_reg_new[i]}\n')
                     #print(f'test_ren_reg_new[i]:\n{test_ren_reg_new[i]}\n')
                     self.__reg_disp_df.iloc[i,i] = 1
 
             test_reg_ren = self.__reg_ren_calc()
+            print(f'test_reg_ren:\n{test_reg_ren}')
             test_ren_ren = self.__ren_ren_calc()
+            print(f'test_ren_ren:\n{test_ren_ren}')
             for i in range(len(test_reg_ren)):
-                if (test_reg_ren[i] == self.__reg_ren_block.values[i,:]).all() and (test_ren_ren[i] == self.__ren_ren_block.values[i,:]).all():
+                if (test_reg_ren.iloc[i,:] == self.__reg_ren_block.values[i,:]).all() and (test_ren_ren.iloc[i,:] == self.__ren_ren_block.values[i,:]).all():
                     self.__ren_disp_df.iloc[i,i] = 1
 
             test_reg_reg_old = test_reg_reg_new
             test_ren_reg_old = test_ren_reg_new
             test_reg_reg_new = self.__reg_reg_calc()
+            print(f'test_reg_reg:\n{test_reg_reg_new}\n') 
             test_ren_reg_new = self.__ren_reg_calc()
-            if (test_reg_reg_old == test_reg_reg_new).all() and (test_ren_reg_old == test_ren_reg_new).all():
+            print(f'test_ren_reg:\n{test_ren_reg_new}\n') 
+            if (test_reg_reg_old == test_reg_reg_new).all().all() and (test_ren_reg_old == test_ren_reg_new).all().all():
                 break
-            
 
         self.__reg_disp.iloc[:] = np.diag(self.__reg_disp_df.values)
         self.__ren_disp.iloc[:] = np.diag(self.__ren_disp_df.values)
