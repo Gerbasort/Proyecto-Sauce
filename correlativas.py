@@ -11,7 +11,29 @@ ren_real = pd.Series()      #   rendidas reales   # input usuario
 reg_disp = pd.Series()      #   posibles de regularizar
 ren_disp = pd.Series()      #   posibles de rendir
 
-reg_reg['materias'] = ['Álgebra I','Matemática Básica','Matemática Discreta I','Cálculo I','Programación','Álgebra Lineal','Análisis Matricial','Cálculo II','Física','EDO','Álgebra II','Programación Lineal','Análisis Real I','Probabilidad y Estadística', 'Cálculo Científico','Probabilidad','EDP','Análisis Numérico','Estadística','Análisis Complejo','Modelos Matemáticos','Análisis Real II','Geometría de curvas']
+reg_reg['materias'] = ['Álgebra I',
+                       'Matemática Básica',
+                       'Matemática Discreta I',
+                       'Cálculo I',
+                       'Programación',
+                       'Álgebra Lineal',
+                       'Análisis Matricial',
+                       'Cálculo II',
+                       'Física',
+                       'EDO',
+                       'Álgebra II',
+                       'Programación Lineal',
+                       'Análisis Real I',
+                       'Probabilidad y Estadística',
+                       'Cálculo Científico',
+                       'Probabilidad',
+                       'EDP',
+                       'Análisis Numérico',
+                       'Estadística',
+                       'Análisis Complejo',
+                       'Modelos Matemáticos',
+                       'Análisis Real II',
+                       'Geometría de curvas']
 
 #   Las matrices se ven como su transpuesta, puesto que cargamos las columnas una por una
 #   ESTA ESTÁ BIEN ✅
@@ -34,6 +56,7 @@ reg_reg['Probabilidad'] =               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
 reg_reg['EDP'] =                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0]
 reg_reg['Análisis Numérico'] =          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_reg['Estadística'] =                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+reg_reg['Análisis Complejo'] =          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_reg['Modelos Matemáticos'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_reg['Análisis Real II'] =           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_reg['Geometría de curvas'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -58,6 +81,7 @@ reg_ren['Probabilidad'] =               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
 reg_ren['EDP'] =                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_ren['Análisis Numérico'] =          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_ren['Estadística'] =                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+reg_ren['Análisis Complejo'] =          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_ren['Modelos Matemáticos'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_ren['Análisis Real II'] =           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_ren['Geometría de curvas'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -82,6 +106,7 @@ ren_ren['Probabilidad'] =               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 ren_ren['EDP'] =                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_ren['Análisis Numérico'] =          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_ren['Estadística'] =                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+ren_ren['Análisis Complejo'] =          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_ren['Modelos Matemáticos'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_ren['Análisis Real II'] =           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_ren['Geometría de curvas'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -106,6 +131,7 @@ ren_reg['Probabilidad'] =               [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
 ren_reg['EDP'] =                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_reg['Análisis Numérico'] =          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_reg['Estadística'] =                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+ren_reg['Análisis Complejo'] =          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_reg['Modelos Matemáticos'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_reg['Análisis Real II'] =           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_reg['Geometría de curvas'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
