@@ -75,34 +75,9 @@ class Correlativas:
         '''
         import pandas as pd
         import numpy as np
-        #print(f'reg_reg:\n {self.__reg_reg_block.values[:,1:]}')
-        test_new = self.__reg_reg_block.values[:,1:]@self.__reg_disp_df.values[:,1:]
 
-        while True:
-            print(f'reg_disp_df:\n{self.__reg_disp_df.values[:,1:]}\n') ###
-            print(f'test_new:\n{test_new}\n')   ###
-
-            for i in range(len(self.labels)):
-                print('###')
-                print(f'reg_reg_block[i]:\n{self.__reg_reg_block.values[i,1:]}\n')
-                print('###')
-                if (test_new[i,:] == self.__reg_reg_block.values[i,1:]).all():
-
-                    self.__reg_disp_df.iloc[i,i+1] = 1
-
-            test_old = test_new
-            test_new = self.__reg_reg_block.values[:,1:]@self.__reg_disp_df.values[:,1:]
-            print(f'reg_disp_df_new:\n {self.__reg_disp_df.values[:,1:]}\n')
-            print(f'test_old:\n{test_old}\n')
-            print(f'test_old==test_new:\n{test_old==test_new}\n')
-            print(f'(test_old==test_new).all():\n{(test_old==test_new).all()}')
-            print('------------------------------')
-            if (test_old == test_new).all():
-                break
-        print('===========================')
-        print(f'last test:\n{test_new}\n')
-        print('===========================')
-        return test_new
+        test = self.__reg_reg_block.values[:,1:]@self.__reg_disp_df.values[:,1:]
+        return test
     
     def __reg_ren_calc(self):
         '''
@@ -112,14 +87,6 @@ class Correlativas:
         import numpy as np
 
         test = self.__reg_ren_block.values[:,1:]@self.__reg_disp_df.values[:,1:]
-        print('------------')
-        print(f'test:\n {test}\n')
-
-        for i in range(len(self.labels)):
-            print(f'reg_ren_block[i]:\n{self.__reg_ren_block.values[i,1:]}')    ###
-            if (test[i,:] == self.__reg_ren_block.values[i,1:]).all():
-                self.__ren_disp_df.iloc[i,i+1] = 1
-        
         return test
     
     def __ren_ren_calc(self):
@@ -130,19 +97,8 @@ class Correlativas:
         import pandas as pd
         import numpy as np
 
-        test_new = self.__ren_ren_block.values[:,1:]@self.__ren_disp_df.values[:,1:]
-        while True:
-
-            for i in range(len(self.labels)):
-                if (test_new[i,:] == self.__ren_ren_block.values[i,1:]).all():
-                    self.__ren_disp_df.iloc[i,i+1] = 1
-
-            test_old = test_new
-            test_new = self.__ren_ren_block.values[:,1:]@self.__ren_disp_df.values[:,1:]
-            if (test_old == test_new).all():
-                break
-
-        return test_new
+        test = self.__ren_ren_block.values[:,1:]@self.__ren_disp_df.values[:,1:]
+        return test
 
     def __ren_reg_calc(self):
         '''
@@ -150,16 +106,8 @@ class Correlativas:
         '''
         import pandas as pd
         import numpy as np
-        print(f'ren_disp_df:\n{self.__ren_disp_df}\n')  ###
-        print(f'reg_disp_df:\n{self.__reg_disp_df}\n')
-        print(f'ren_reg_block:\n{self.__ren_reg_block.values[:,1:]}\n')
+
         test = self.__ren_reg_block.values[:,1:]@self.__ren_disp_df.values[:,1:]
-        print(f'test:\n{test}\n')   ###
-        for i in range(len(self.labels)):
-            print(f'ren_reg_block[i]:\n{self.__ren_reg_block.values[i,1:]}')    ###
-            if (test[i,:] == self.__ren_reg_block.values[i,1:]).all():
-                self.__reg_disp_df.iloc[i,i+1] = 1
-        
         return test
 
     def __calc(self):
@@ -173,17 +121,28 @@ class Correlativas:
         finales.
         '''
         import numpy as np
-        test_new = self.__reg_ren_calc()
-        while True:
-            self.__ren_ren_calc()
-            self.__ren_reg_calc()
-            self.__reg_reg_calc()
-            test_old = test_new
-            test_new = self.__reg_ren_calc()
-            if (test_new == test_old).all():
-                break
-
+        test_reg_reg_new = self.__reg_reg_calc()            #   posibilidades de regularización por materias regularizadas
+        test_ren_reg_new = self.__ren_reg_calc()            #   posibilidades de regularización por materias aprobadas
         
+        while True:
+            for i in range(len(test_reg_reg_new)):
+                if (test_reg_reg_new[i] == self.__reg_reg_block.values[i,1:]).all() and (test_ren_reg_new[i] == self.__ren_reg_block.values[i,1:]).all():
+                    self.__reg_disp_df.iloc[i,i+1] = 1
+
+            test_reg_ren = self.__reg_ren_calc()
+            test_ren_ren = self.__ren_ren_calc()
+            for i in range(len(test_reg_ren)):
+                if (test_reg_ren[i] == self.__reg_ren_block.values[i,1:]).all() and (test_ren_ren[i] == self.__ren_ren_block.values[i,1:]).all():
+                    self.__ren_disp_df.iloc[i,i+1] = 1
+
+            test_reg_reg_old = test_reg_reg_new
+            test_ren_reg_old = test_ren_reg_new
+            test_reg_reg_new = self.__reg_reg_calc()
+            test_ren_reg_new = self.__ren_reg_calc()
+            if (test_reg_reg_old == test_reg_reg_new).all() and (test_ren_reg_old == test_ren_reg_new).all():
+                break
+            
+
         self.__reg_disp.iloc[:] = np.diag(self.__reg_disp_df.values[:,1:])
         self.__ren_disp.iloc[:] = np.diag(self.__ren_disp_df.values[:,1:])
 
