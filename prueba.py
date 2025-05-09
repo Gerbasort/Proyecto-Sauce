@@ -154,6 +154,7 @@ class Correlativas:
 #==============================================================================================#
 #                                         ÁREA DE TESTEO                                       #
 #==============================================================================================#
+'''
 reg_reg = pd.DataFrame()
 reg_reg['Materias'] = ['Álgebra I','Matemática Básica','Matemática Discreta I','Cálculo I']
 reg_reg['Álgebra I'] =              [0,0,1,0]
@@ -181,9 +182,14 @@ ren_reg['Álgebra I'] =              [0,0,0,0]
 ren_reg['Matemática Básica'] =      [0,0,0,0]
 ren_reg['Matemática Discreta I'] =  [0,0,0,0]
 ren_reg['Cálculo I'] =              [0,0,0,0]
+'''
+import correlativas as c
+reg_reg = c.reg_reg
+reg_ren = c.reg_ren
+ren_ren = c.ren_ren
+ren_reg = c.ren_reg
 
 test = Correlativas(reg_reg,reg_ren,ren_ren,ren_reg)
-test.reg_real([0,1,0,0])
 disp = test.disponibles('Matemática Básica')
 print(f'cursar:\n{disp["cursar"]}\n')
 print(f'rendir:\n{disp["rendir"]}\n')
