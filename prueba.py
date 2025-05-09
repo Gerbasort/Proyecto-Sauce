@@ -11,44 +11,49 @@ class Correlativas:
         import pandas as pd
         import numpy as np
         self.labels = regreg.columns
-        #print(regreg.shape)
-        #print(self.labels)
-        #print(len(self.labels))
 
-        self.__reg_reg = regreg
-        self.__reg_ren = regren
-        self.__ren_ren = renren
-        self.__ren_reg = renreg
+        self.__reg_reg = regreg #   X necesita Y regular para regularizar
+        self.__reg_ren = regren #   X necesita Y regular para rendir
+        self.__ren_ren = renren #   X necesita Y rendida para rendir
+        self.__ren_reg = renreg #   X necesita Y rendida para regularizar
 
-        self.__reg_real = pd.Series([0]*len(self.labels),index=self.labels)
-        self.__ren_real = pd.Series([0]*len(self.labels),index=self.labels)
+        self.__reg_real = pd.Series([0]*len(self.labels),index=self.labels) #   materias actualmente regularizadas
+        self.__ren_real = pd.Series([0]*len(self.labels),index=self.labels) #   materias actualmente rendidas
 
-        self.__reg_disp = pd.Series([0]*len(self.labels),index=self.labels)
-        self.__reg_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)
-        self.__ren_disp = pd.Series([0]*len(self.labels),index=self.labels)   
-        self.__ren_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)
+        self.__reg_disp = pd.Series([0]*len(self.labels),index=self.labels) #   materias actualmente disponibles para regularizar
+        self.__reg_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)  #   matriz de posibles de regularizar para hacer cuentas
+        self.__ren_disp = pd.Series([0]*len(self.labels),index=self.labels) #   materias actualmente disponibles para rendir
+        self.__ren_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)  #   matriz de posibles de rendir para hacer cuentas
 
-        self.__consistencia()
+        self.__consistencia()   #   forzamos consistencia
 
+        #   matrices de restricciones reg_reg, reg_ren, ren_ren, ren_reg con bloqueos impuestos por el usuario
+        #   los bloqueos del usuario se generan cuando llama a .disponible()
         self.__reg_reg_block = pd.DataFrame(self.__reg_reg.values,index=self.labels)
         self.__reg_ren_block = pd.DataFrame(self.__reg_ren.values,index=self.labels)
         self.__ren_ren_block = pd.DataFrame(self.__ren_ren.values,index=self.labels)
         self.__ren_reg_block = pd.DataFrame(self.__ren_reg.values,index=self.labels)
 
-        print(self.__reg_reg.values,'\n')
-        print(self.__reg_ren.values,'\n')
-        print(self.__ren_ren.values,'\n')
-        print(self.__ren_reg.values,'\n')
+        #print(self.__reg_reg.values,'\n')
+        #print(self.__reg_ren.values,'\n')
+        #print(self.__ren_ren.values,'\n')
+        #print(self.__ren_reg.values,'\n')
     #===============================================#
     #           Métodos input                       #
     #===============================================#
-    def reg_real(self,vector):
+    def reg_real(self,vector):  #   HACER QUE SE PUEDA METER UN VECTOR DE NOMBRES DE MATERIAS, Y NO UN VECTOR EXPLÍCITO
+        '''
+        Cargar materias regularizadas actualmente
+        '''
         import numpy as np
         self.__reg_real.iloc[:] = vector 
         self.__reg_disp.iloc[:] = vector
         self.__reg_disp_df = pd.DataFrame(np.diag(vector),index=self.labels)
     
-    def ren_real(self,vector):
+    def ren_real(self,vector):  #   HACER QUE SE PUEDA METER UN VECTOR DE NOMBRES DE MATERIAS, Y NO UN VECTOR EXPLÍCITO
+        '''
+        Cargar materias rendidas (aprobadas) actualmente
+        '''
         import numpy as np
         self.__ren_real.iloc[:] = vector 
         self.__ren_disp.iloc[:] = vector
@@ -61,7 +66,7 @@ class Correlativas:
             - blocked:  materias que queremos negar, para ver
                         qué se nos bloquea
         '''
-        for materia in blocked:
+        for materia in blocked: #   genera los bloqueos
             indice = self.__reg_reg.columns.get_loc(materia)
             self.__reg_reg_block.iloc[indice,indice] = 1
             self.__reg_ren_block.iloc[indice,indice] = 1
@@ -71,72 +76,82 @@ class Correlativas:
         #print(self.__reg_ren_block)
         #print(self.__ren_ren_block)
         #print(self.__ren_reg_block)
-        self.__calc()
+        self.__calc_disponibles()
         return {'cursar':self.__reg_disp,'rendir':self.__ren_disp}
     #================================================#
     #           Métodos cálculo                      #
     #================================================#
     def __reg_reg_calc(self):
         '''
-        Calcula reg_reg@reg_disp_df de forma iterativa
-        Esto actualiza reg_disp_df hasta que no se puede actualizar más
+        reg_reg@reg_disp
+
+        Esto es equivalente a verificar qué materias puedo regularizar
+        teniendo en cuenta los bloqueos y las materias regularizables
         '''
         import pandas as pd
         import numpy as np
 
-        print('-------------------------------------------------')
-        print(f'reg_reg_calc')
-        print(self.__reg_reg_block)
-        print(self.__reg_disp_df)
-        print('-------------------------------------------------')
+        #print('-------------------------------------------------')
+        #print(f'reg_reg_calc')
+        #print(self.__reg_reg_block)
+        #print(self.__reg_disp_df)
+        #print('-------------------------------------------------')
         
         test = self.__reg_reg_block.values@self.__reg_disp_df
         return test
     
     def __reg_ren_calc(self):
         '''
-        Calcula reg_ren@reg_disp_df; esto actualiza ren_disp_df una sóla vez
+        reg_ren@reg_disp
+
+        Esto es equivalente a verificar qué materias puedo rendir
+        teniendo en cuenta los bloqueos y las materias regularizables
         '''
         import pandas as pd
         import numpy as np
 
-        print('-------------------------------------------------')
-        print(f'reg_ren_calc')
-        print(self.__reg_ren_block)
-        print(self.__reg_disp_df)
-        print('-------------------------------------------------')
+        #print('-------------------------------------------------')
+        #print(f'reg_ren_calc')
+        #print(self.__reg_ren_block)
+        #print(self.__reg_disp_df)
+        #print('-------------------------------------------------')
         test = self.__reg_ren_block.values@self.__reg_disp_df
         return test
     
     def __ren_ren_calc(self):
         '''
-        Calcula ren_ren@ren_disp_df de forma iterativa
-        Esto actualiza ren_disp_df hasta que no se puede actualizar más
+        ren_ren@ren_disp
+
+        Esto es equivalente a verificar qué materias puedo rendir
+        teniendo en cuenta los bloqueos y las materias rendibles
         '''
         import pandas as pd
         import numpy as np
 
-        print('-------------------------------------------------')
-        print(f'ren_ren_calc')
-        print(self.__ren_ren_block)
-        print(self.__ren_disp_df)
-        print('-------------------------------------------------')
+        #print('-------------------------------------------------')
+        #print(f'ren_ren_calc')
+        #print(self.__ren_ren_block)
+        #print(self.__ren_disp_df)
+        #print('-------------------------------------------------')
 
         test = self.__ren_ren_block.values@self.__ren_disp_df
         return test
 
     def __ren_reg_calc(self):
         '''
-        Calcula reg_ren@reg_disp_df; esto actualiza ren_disp_df una sóla vez
+        reg_reg@ren_disp
+
+        Esto es equivalente a verificar qué materias puedo regularizar
+        teniendo en cuenta bloqueos y las materias rendibles
         '''
         import pandas as pd
         import numpy as np
 
-        print('-------------------------------------------------')
-        print(f'ren_reg_calc')
-        print(self.__ren_reg_block)
-        print(self.__ren_disp_df)
-        print('-------------------------------------------------')
+        #print('-------------------------------------------------')
+        #print(f'ren_reg_calc')
+        #print(self.__ren_reg_block)
+        #print(self.__ren_disp_df)
+        #print('-------------------------------------------------')
         test = self.__ren_reg_block.values@self.__ren_disp_df
 
         return test
@@ -144,6 +159,21 @@ class Correlativas:
     def __consistencia(self):
         '''
         Se asegura de que haya consistencia entre los datos
+
+        Las implicaciones son de la siguiente naturaleza:
+        
+        -----------------------
+         reg_reg    →   reg_ren
+            ↑              ↑ 
+         ren_reg    →   ren_ren
+        ------------------------
+        -------------------------------------------
+         reg_real   →   reg_disp    →   reg_disp_df
+            ↑              ↑                 ↑
+         ren_real   →   ren_disp    →   ren_disp_df
+        -------------------------------------------
+
+        Ambos bloques están desacoplados, por lo que se pueden chequear a la vez
         '''
         n = len(self.__reg_real)
         
@@ -178,21 +208,20 @@ class Correlativas:
                 self.__reg_disp_df.iloc[i,i] = 1
 
 
-    def __calc(self):
+    def __calc_disponibles(self):
         '''
-        Relaciona los distintos cálculos.
+        Desencadena:
+          el efecto de las implicaciones
+                      +
+        la posibilidad de rendir/regularizar
 
-        Estos se van actualizando entre sí
-        hasta que se llega a un equilibrio.
-
-        Estas serán las matrices/vectores
-        finales.
+        Hasta llegar a un equilibrio
         '''
         import numpy as np
         test_reg_reg_new = self.__reg_reg_calc()            #   posibilidades de regularización por materias regularizadas
-        print(f'test_reg_reg:\n{test_reg_reg_new}\n')       ###
+        #print(f'test_reg_reg:\n{test_reg_reg_new}\n')       ###
         test_ren_reg_new = self.__ren_reg_calc()            #   posibilidades de regularización por materias aprobadas
-        print(f'test_ren_reg:\n{test_ren_reg_new}\n')       ###
+        #print(f'test_ren_reg:\n{test_ren_reg_new}\n')       ###
 
         while True:
             for i in range(len(test_reg_reg_new)):
@@ -202,9 +231,9 @@ class Correlativas:
                     self.__reg_disp_df.iloc[i,i] = 1
 
             test_reg_ren = self.__reg_ren_calc()
-            print(f'test_reg_ren:\n{test_reg_ren}')
+            #print(f'test_reg_ren:\n{test_reg_ren}')
             test_ren_ren = self.__ren_ren_calc()
-            print(f'test_ren_ren:\n{test_ren_ren}')
+            #print(f'test_ren_ren:\n{test_ren_ren}')
             for i in range(len(test_reg_ren)):
                 if (test_reg_ren.iloc[i,:] == self.__reg_ren_block.values[i,:]).all() and (test_ren_ren.iloc[i,:] == self.__ren_ren_block.values[i,:]).all():
                     self.__ren_disp_df.iloc[i,i] = 1
@@ -212,9 +241,9 @@ class Correlativas:
             test_reg_reg_old = test_reg_reg_new
             test_ren_reg_old = test_ren_reg_new
             test_reg_reg_new = self.__reg_reg_calc()
-            print(f'test_reg_reg:\n{test_reg_reg_new}\n') 
+            #print(f'test_reg_reg:\n{test_reg_reg_new}\n') 
             test_ren_reg_new = self.__ren_reg_calc()
-            print(f'test_ren_reg:\n{test_ren_reg_new}\n') 
+            #print(f'test_ren_reg:\n{test_ren_reg_new}\n') 
             if (test_reg_reg_old == test_reg_reg_new).all().all() and (test_ren_reg_old == test_ren_reg_new).all().all():
                 break
 
@@ -224,6 +253,8 @@ class Correlativas:
 #==============================================================================================#
 #                                         ÁREA DE TESTEO                                       #
 #==============================================================================================#
+
+#   Materias de testeo; NO BORRAR
 '''
 reg_reg = pd.DataFrame()
 reg_reg['Materias'] = ['Álgebra I','Matemática Básica','Matemática Discreta I','Cálculo I']
@@ -253,6 +284,7 @@ ren_reg['Matemática Básica'] =      [0,0,0,0]
 ren_reg['Matemática Discreta I'] =  [0,0,0,0]
 ren_reg['Cálculo I'] =              [0,0,0,0]
 '''
+
 import correlativas as c
 reg_reg = c.reg_reg
 reg_ren = c.reg_ren
@@ -260,6 +292,6 @@ ren_ren = c.ren_ren
 ren_reg = c.ren_reg
 
 test = Correlativas(reg_reg,reg_ren,ren_ren,ren_reg)
-disp = test.disponibles('Cálculo I')
+disp = test.disponibles('Análisis Matricial','Física')
 print(f'cursar:\n{disp["cursar"]}\n')
 print(f'rendir:\n{disp["rendir"]}\n')
