@@ -216,6 +216,28 @@ class Correlativas:
         la posibilidad de rendir/regularizar
 
         Hasta llegar a un equilibrio
+        --------------------------------------------------
+                        |Algoritmo|
+                        
+            1)  tomamos las dos condiciones de regularidad
+        reg_reg y ren_reg
+
+            2)  verificamos que se cumplan ambas para una
+        materia dada
+
+            3)  actualizamos la matriz de regularizables
+
+            4)  hacemos lo mismo para las rendibles y las
+        actualizamos
+
+            5)  habiendo actualizado las regularizables y
+        las rendibles, verificamos si se ha agrandado la
+        posibilidad de regularizar materias
+
+            6)  si se agrandó, repetimos desde (1)
+
+            7)  sino, nos detenemos, y devolvemos las materias
+        regularizables y las rendibles
         '''
         import numpy as np
         test_reg_reg_new = self.__reg_reg_calc()            #   posibilidades de regularización por materias regularizadas
