@@ -10,7 +10,7 @@ class Correlativas:
         '''
         import pandas as pd
         import numpy as np
-        self.labels = regreg.iloc[:,1:].index
+        self.labels = regreg.iloc[:,1:].columns
 
         self.__reg_reg = regreg
         self.__reg_ren = regren
@@ -22,8 +22,8 @@ class Correlativas:
         self.__ren_ren_block = pd.DataFrame(renren.values,index=self.labels)
         self.__ren_reg_block = pd.DataFrame(renreg.values,index=self.labels)
 
-        self.__reg_real = pd.Series([None]*len(self.labels),index=self.labels)
-        self.__ren_real = pd.Series([None]*len(self.labels),index=self.labels)
+        self.__reg_real = pd.Series([0]*len(self.labels),index=self.labels)
+        self.__ren_real = pd.Series([0]*len(self.labels),index=self.labels)
 
         self.__reg_disp = pd.Series([0]*len(self.labels),index=self.labels)
         self.__reg_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)
@@ -45,6 +45,11 @@ class Correlativas:
         self.__ren_real.iloc[:] = vector 
         self.__ren_disp.iloc[:] = vector
         self.__ren_disp_df.iloc[:,1:] = np.diag(vector)
+        for i in range(len(self.__reg_real)):
+            if self.__ren_real.iloc[i] == 1:
+                self.__reg_real.iloc[i] = 1
+                self.__reg_disp.iloc[i] = 1 
+                self.__reg_disp_df.iloc[i,1:] = 1
 
     def disponibles(self,*blocked):
         '''
@@ -123,7 +128,7 @@ class Correlativas:
         import numpy as np
         test_reg_reg_new = self.__reg_reg_calc()            #   posibilidades de regularización por materias regularizadas
         test_ren_reg_new = self.__ren_reg_calc()            #   posibilidades de regularización por materias aprobadas
-        
+
         while True:
             for i in range(len(test_reg_reg_new)):
                 if (test_reg_reg_new[i] == self.__reg_reg_block.values[i,1:]).all() and (test_ren_reg_new[i] == self.__ren_reg_block.values[i,1:]).all():
@@ -146,6 +151,9 @@ class Correlativas:
         self.__reg_disp.iloc[:] = np.diag(self.__reg_disp_df.values[:,1:])
         self.__ren_disp.iloc[:] = np.diag(self.__ren_disp_df.values[:,1:])
 
+#==============================================================================================#
+#                                         ÁREA DE TESTEO                                       #
+#==============================================================================================#
 reg_reg = pd.DataFrame()
 reg_reg['Materias'] = ['Álgebra I','Matemática Básica','Matemática Discreta I','Cálculo I']
 reg_reg['Álgebra I'] =              [0,0,1,0]
@@ -175,7 +183,7 @@ ren_reg['Matemática Discreta I'] =  [0,0,0,0]
 ren_reg['Cálculo I'] =              [0,0,0,0]
 
 test = Correlativas(reg_reg,reg_ren,ren_ren,ren_reg)
-test.reg_real([0,0,0,0])
-disp = test.disponibles('Álgebra I')
+test.reg_real([0,1,0,0])
+disp = test.disponibles('Matemática Básica')
 print(f'cursar:\n{disp["cursar"]}\n')
 print(f'rendir:\n{disp["rendir"]}\n')
