@@ -11,32 +11,8 @@ ren_real = pd.Series()      #   rendidas reales   # input usuario
 reg_disp = pd.Series()      #   posibles de regularizar
 ren_disp = pd.Series()      #   posibles de rendir
 
-reg_reg['materias'] = ['Álgebra I',
-                       'Matemática Básica',
-                       'Matemática Discreta I',
-                       'Cálculo I',
-                       'Programación',
-                       'Álgebra Lineal',
-                       'Análisis Matricial',
-                       'Cálculo II',
-                       'Física',
-                       'EDO',
-                       'Álgebra II',
-                       'Programación Lineal',
-                       'Análisis Real I',
-                       'Probabilidad y Estadística',
-                       'Cálculo Científico',
-                       'Probabilidad',
-                       'EDP',
-                       'Análisis Numérico',
-                       'Estadística',
-                       'Análisis Complejo',
-                       'Modelos Matemáticos',
-                       'Análisis Real II',
-                       'Geometría de curvas']
-
 #   Las matrices se ven como su transpuesta, puesto que cargamos las columnas una por una
-#   ESTA ESTÁ BIEN ✅
+#   ESTA ESTÁ BIEN ✅                           #5       #10       #15        #20
 reg_reg['Álgebra I'] =                  [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_reg['Matemática Básica'] =          [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 reg_reg['Matemática Discreta I'] =      [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -111,7 +87,7 @@ ren_ren['Modelos Matemáticos'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 ren_ren['Análisis Real II'] =           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_ren['Geometría de curvas'] =        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-#   CARGADA (CHEQUEAR)                          #5        #10       #15       #20
+#   CARGADA (CHEQUEAR)                          #5        #10       #15       #20       #muy bueno esto xd
 ren_reg['Álgebra I'] =                  [0,0,1,0,1,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_reg['Matemática Básica'] =          [0,0,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ren_reg['Matemática Discreta I'] =      [0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,0,0,0,0,0,0,0]
