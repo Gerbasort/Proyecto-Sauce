@@ -142,8 +142,8 @@ class Correlativas:
         ren = self.__ren_ren + self.__ren_reg
         print('=============================================')
         for i in range(len(self.labels)):
-            suma_reg = sum(reg.iloc[j,i] for j in range(len(self.labels)) if reg.iloc[j,i] != 0)
-            suma_ren = sum(ren.iloc[j,i] for j in range(len(self.labels)) if ren.iloc[j,i] != 0)
+            suma_reg = sum(1 for j in range(len(self.labels)) if reg.iloc[j,i] != 0)
+            suma_ren = sum(1 for j in range(len(self.labels)) if ren.iloc[j,i] != 0)
             num_next = len(self.labels)-(i) # cantidad de materias que le siguen
             print(f'        {self.labels[i]}        ')
             print(f'Regular: {suma_reg} | {round((suma_reg/len(self.labels))*100,1)}% total | {round((suma_reg/num_next)*100,1)}% siguientes')
