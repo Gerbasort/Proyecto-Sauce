@@ -21,9 +21,9 @@ class Correlativas:
         self.__ren_real = pd.Series([0]*len(self.labels),index=self.labels) #   materias actualmente rendidas
 
         self.__reg_disp = pd.Series([0]*len(self.labels),index=self.labels) #   materias actualmente disponibles para regularizar
-        self.__reg_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)  #   matriz de posibles de regularizar para hacer cuentas
+        self.__reg_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)  #   matriz de regularizables para hacer cuentas
         self.__ren_disp = pd.Series([0]*len(self.labels),index=self.labels) #   materias actualmente disponibles para rendir
-        self.__ren_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)  #   matriz de posibles de rendir para hacer cuentas
+        self.__ren_disp_df = pd.DataFrame(np.zeros((len(self.labels),len(self.labels))),index=self.labels)  #   matriz de rendibles para hacer cuentas
 
         self.__consistencia()   #   forzamos consistencia
 
@@ -78,6 +78,78 @@ class Correlativas:
         #print(self.__ren_reg_block)
         self.__calc_disponibles()
         return {'cursar':self.__reg_disp,'rendir':self.__ren_disp}
+
+    def inmediatas(self,*blocked):
+        '''
+        Recibe:
+            - blocked:  materia que queremos negar, para ver
+                        qué se nos bloquea
+        '''
+
+        for materia in blocked: #   genera los bloqueos
+            indice = self.__reg_reg.columns.get_loc(materia)
+            self.__reg_reg_block.iloc[indice,indice] = 1
+            self.__reg_ren_block.iloc[indice,indice] = 1
+            self.__ren_ren_block.iloc[indice,indice] = 1
+            self.__ren_reg_block.iloc[indice,indice] = 1
+        
+        reg_now,ren_now = self.__calc_inmediatas()
+        return {'cursar':reg_now,'rendir':ren_now}
+    
+    def completar(self):
+        '''
+        Devuelve las matrices de correlatividades completas
+        teniendo en cuenta las implicaciones (ver .__consistencia())
+        '''
+        import pandas as pd
+        pd.set_option('display.width',200)
+        regreg = self.__reg_reg.replace({0:'',1:11})
+        renreg = self.__ren_reg.replace({0:'',1:11})
+        regren = self.__reg_ren.replace({0:'',1:11})
+        renren = self.__ren_ren.replace({0:'',1:11})
+        print('--------------------------------------')
+        print(f'Regularizar para Cursar:')
+        print(regreg.values)
+        print('--------------------------------------')
+        print(f'Aprobar para Cursar:')
+        print(renreg.values)
+        print('--------------------------------------')
+        print(f'Regularizar para Rendir:')
+        print(regren.values)
+        print('--------------------------------------')
+        print(f'Aprobar para Rendir:')
+        print(renren.values)
+
+    def correlatividades(self):
+        '''
+        Calcula la cantidad de correlatividades de cada materia
+        '''
+        print('============================================')
+        for i in range(len(self.labels)):
+            print(f'        {self.labels[i]}        ')
+            print(f'Regular para cursar: {sum(self.__reg_reg.iloc[:,i])}')
+            print(f'Regular para rendir: {sum(self.__reg_ren.iloc[:,i])}')
+            print(f'Aprobada para cursar: {sum(self.__ren_reg.iloc[:,i])}')
+            print(f'Aprobada para rendir: {sum(self.__ren_ren.iloc[:,i])}')
+            print('---------------------------------------------')
+    
+    def stats(self):
+        '''
+        Calcula la cantidad de materias únicas que la necesitan regular o aprobada,
+        lo muestra en porcentaje de las materias totales y de las que le siguen.
+        '''
+        reg = self.__reg_ren + self.__reg_reg
+        ren = self.__ren_ren + self.__ren_reg
+        print('=============================================')
+        for i in range(len(self.labels)):
+            suma_reg = sum(reg.iloc[j,i] for j in range(len(self.labels)) if reg.iloc[j,i] != 0)
+            suma_ren = sum(ren.iloc[j,i] for j in range(len(self.labels)) if ren.iloc[j,i] != 0)
+            num_next = len(self.labels)-(i) # cantidad de materias que le siguen
+            print(f'        {self.labels[i]}        ')
+            print(f'Regular: {suma_reg} | {round((suma_reg/len(self.labels))*100,1)}% total | {round((suma_reg/num_next)*100,1)}% siguientes')
+            print(f'Aprobada: {suma_ren} | {round((suma_ren/len(self.labels))*100,1)}% total | {round((suma_ren/num_next)*100,1)}% siguientes')
+            print('---------------------------------------------')
+
     #================================================#
     #           Métodos cálculo                      #
     #================================================#
@@ -245,6 +317,7 @@ class Correlativas:
         test_ren_reg_new = self.__ren_reg_calc()            #   posibilidades de regularización por materias aprobadas
         #print(f'test_ren_reg:\n{test_ren_reg_new}\n')       ###
 
+        #print('\n',len(test_reg_reg_new))
         while True:
             for i in range(len(test_reg_reg_new)):
                 if (test_reg_reg_new.iloc[i,:] == self.__reg_reg_block.values[i,:]).all() and (test_ren_reg_new.iloc[i,:] == self.__ren_reg_block.values[i,:]).all():
@@ -271,6 +344,33 @@ class Correlativas:
 
         self.__reg_disp.iloc[:] = np.diag(self.__reg_disp_df.values)
         self.__ren_disp.iloc[:] = np.diag(self.__ren_disp_df.values)
+    
+    def __calc_inmediatas(self):
+        '''
+        Calcula las materias que se pueden
+        regularizar/rendir, dadas las materias
+        actuales reg_real, ren_real y los bloqueos.
+        '''
+        import numpy as np
+        reg_real_df = pd.DataFrame(np.diag(self.__reg_real),index=self.labels)
+        ren_real_df = pd.DataFrame(np.diag(self.__ren_real),index=self.labels)
+
+        ren_now = pd.Series(self.__ren_real,index=self.labels)
+        reg_now = pd.Series(self.__reg_real,index=self.labels)
+
+        test_reg_reg = self.__reg_reg_block.values@reg_real_df
+        test_ren_reg = self.__ren_reg_block.values@ren_real_df
+        test_reg_ren = self.__reg_ren_block.values@reg_real_df
+        test_ren_ren = self.__ren_ren_block.values@ren_real_df
+
+        for i in range(len(test_reg_ren)):
+            if (test_reg_reg.iloc[i,:]==self.__reg_reg_block.values[i,:]).all() and (test_ren_reg.iloc[i,:]==self.__ren_reg_block.values[i,:]).all():
+                reg_now.iloc[i] = 1
+            if (test_reg_ren.iloc[i,:]==self.__reg_ren_block.values[i,:]).all() and (test_ren_ren.iloc[i,:]==self.__ren_ren_block.values[i,:]).all():
+                ren_now.iloc[i] = 1
+        
+        return reg_now,ren_now
+
 
 #==============================================================================================#
 #                                         ÁREA DE TESTEO                                       #
@@ -314,6 +414,10 @@ ren_ren = c.ren_ren
 ren_reg = c.ren_reg
 
 test = Correlativas(reg_reg,reg_ren,ren_ren,ren_reg)
-disp = test.disponibles('Análisis Matricial','Física')
-print(f'cursar:\n{disp["cursar"]}\n')
-print(f'rendir:\n{disp["rendir"]}\n')
+#test.reg_real([1,1,1,1,1,1,1,1,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0])
+#test.ren_real([1,1,1,1,1,1,1,1,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0])
+#disp = test.inmediatas()
+#print(f'\n cursar:\n{disp["cursar"]}\n')
+#print(f'\n rendir:\n{disp["rendir"]}\n')
+test.stats()
+
