@@ -662,6 +662,7 @@ ren_reg['Matemática Discreta I'] =  [0,0,0,0]
 ren_reg['Cálculo I'] =              [0,0,0,0]
 '''
 
+'''
 import correlativas as c
 reg_reg = c.reg_reg
 reg_ren = c.reg_ren
@@ -669,15 +670,31 @@ ren_ren = c.ren_ren
 ren_reg = c.ren_reg
 
 test = Correlativas(reg_reg,reg_ren,ren_ren,ren_reg)
-test.reg_real('Álgebra I','Cálculo I')
-test.ren_real('Álgebra I','Cálculo I')
+test.reg_real('Álgebra I','Cálculo I','Matemática Básica','Matemática Discreta I')
+test.ren_real('Álgebra I','Cálculo I','Matemática Básica','Matemática Discreta I')
 
-#disp = test.inmediatas()
-#print(f'\n cursar:\n{disp["cursar"]}\n')
-#print(f'\n rendir:\n{disp["rendir"]}\n')
-
+disp = test.inmediatas()
+print(f'\n cursar:\n{disp["cursar"]}\n')
+print(f'\n rendir:\n{disp["rendir"]}\n')
+'''
 #inmediatas = test.inmediatas()
 #print(f'\n cursar: \n{inmediatas["cursar"]}')
 #print(f'\n rendir: \n{inmediatas["rendir"]}')
 
-test.completar()
+#test.completar()
+
+import sys
+sys.setrecursionlimit(2000)
+import plan2026 as p
+reg_reg = p.reg_reg
+reg_ren = p.reg_ren
+ren_ren = p.ren_ren
+ren_reg = p.ren_reg
+
+test = Correlativas(reg_reg,reg_ren,ren_ren,ren_reg)
+test.reg_real('Álgebra','Cálculo I','Matemática Básica','Matemática Discreta')
+test.ren_real('Álgebra','Cálculo I','Matemática Básica','Matemática Discreta')
+
+disp = test.inmediatas()
+print(f'\n cursar:\n{disp["cursar"]}\n')
+print(f'\n rendir:\n{disp["rendir"]}\n')
